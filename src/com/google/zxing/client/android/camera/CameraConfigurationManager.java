@@ -28,6 +28,8 @@ import android.view.WindowManager;
 import com.google.zxing.client.android.PreferencesActivity;
 import com.google.zxing.client.android.camera.metering.MeteringInterface;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -77,6 +79,7 @@ final class CameraConfigurationManager {
   }
 
   void setDesiredCameraParameters(Camera camera, boolean safeMode) {
+    setDisplayOrientation(camera, 90);
     Camera.Parameters parameters = camera.getParameters();
 
     if (parameters == null) {
@@ -376,4 +379,26 @@ final class CameraConfigurationManager {
     return result;
   }
 
+  
+  /*改变照相机成像的方向的方法*/ 
+  protected void setDisplayOrientation(Camera camera, int angle) {
+      Method downPolymorphic = null;              
+      try {       
+          downPolymorphic = camera.getClass().getMethod("setDisplayOrientation", new Class[] { int.class });     
+          
+          if (downPolymorphic != null)                   
+              downPolymorphic.invoke(camera, new Object[]{angle});            
+          } 
+          catch (NoSuchMethodException e) {        
+              e.printStackTrace();  
+          } 
+          catch (IllegalArgumentException e) {       
+              e.printStackTrace();  
+          } 
+          catch (IllegalAccessException e) { 
+              e.printStackTrace();    
+          } 
+          catch (InvocationTargetException e) { 
+             e.printStackTrace();    }  
+      }
 }
