@@ -42,10 +42,23 @@ final class PreviewCallback implements Camera.PreviewCallback {
   @Override
   public void onPreviewFrame(byte[] data, Camera camera) {
     Point cameraResolution = configManager.getCameraResolution();
+    
+ // Rotate the data for Portait Mode
+//    long startTick = System.currentTimeMillis();
+    int width = cameraResolution.x;
+    int height = cameraResolution.y;
+    byte[] rotatedData = new byte[data.length];
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++)
+            rotatedData[x * height + height - y - 1] = data[x + y * width];
+    }
+//    long endTick = System.currentTimeMillis();
+//    Log.d(TAG, "Rotate data cost " + (endTick - startTick) + " ms");
+    
     Handler thePreviewHandler = previewHandler;
     if (cameraResolution != null && thePreviewHandler != null) {
-      Message message = thePreviewHandler.obtainMessage(previewMessage, cameraResolution.x,
-          cameraResolution.y, data);
+      Message message = thePreviewHandler.obtainMessage(previewMessage, cameraResolution.y,
+          cameraResolution.x, rotatedData);
       message.sendToTarget();
       previewHandler = null;
     } else {
